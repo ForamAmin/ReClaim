@@ -1,1 +1,283 @@
-// The common dashboard page for both admins and users after login.
+{% extends "base.html" %}
+
+{% block title %}Dashboard | ReClaim{% endblock %}
+
+{% block content %}
+
+<div class="hero-section">
+    <div class="hero-text">
+        <h1>Lost it? Find it.<br>Found it? Return it.</h1>
+        <p>The official, secure bridge between lost belongings and their rightful owners on campus.</p>
+        
+        <div class="hero-buttons">
+            <a href="/items/report" class="btn-hero-green">
+                <i class="fas fa-plus-circle"></i> I Found Something
+            </a>
+            <button onclick="scrollToFeed()" class="btn-hero-outline">
+                <i class="fas fa-search"></i> I Lost Something
+            </button>
+        </div>
+    </div>
+    
+    <div class="hero-image">
+        <img src="/static/images/hero-image.jpg" alt="Student on laptop" onerror="this.src='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">
+    </div>
+</div>
+
+<div class="how-it-works">
+    <h2 class="section-heading">How It Works</h2>
+    
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="icon-circle">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h3>Report</h3>
+            <p>Found something? Upload a photo and location details instantly.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="icon-circle">
+                <i class="fas fa-id-card"></i>
+            </div>
+            <h3>Verify</h3>
+            <p>Owners answer security questions to prove ownership before claiming.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="icon-circle">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <h3>Return</h3>
+            <p>Item is safely returned via the Admin office or direct meetup.</p>
+        </div>
+    </div>
+</div>
+
+{% if is_admin %}
+<div class="admin-panel">
+    <div class="admin-header">
+        <h3><i class="fas fa-user-shield"></i> Admin Control Center</h3>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ admin_stats.total_items }}</span>
+            <span class="stat-label">Total Items</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ admin_stats.total_users }}</span>
+            <span class="stat-label">Users</span>
+        </div>
+        <a href="/admin/claims" class="stat-card action-card">
+            <span class="stat-icon"><i class="fas fa-gavel"></i></span>
+            <span class="stat-label">Review Claims</span>
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div class="tabs-container" id="feed-section">
+    <div class="tabs">
+        <button class="tab-link active" onclick="openTab(event, 'PublicZone')">
+            <i class="fas fa-stream"></i> Public Feed
+        </button>
+        <button class="tab-link" onclick="openTab(event, 'PersonalZone')">
+            <i class="fas fa-user-circle"></i> My Activity
+        </button>
+    </div>
+</div>
+
+<div id="PublicZone" class="tab-content" style="display: block;">
+    {% if public_feed %}
+        <div class="items-grid">
+            {% for item in public_feed %}
+            <div class="item-card">
+                <div class="item-image-placeholder">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="item-details">
+                    <h4>{{ item.title }}</h4>
+                    <p class="location"><i class="fas fa-map-pin"></i> {{ item.location_found }}</p>
+                    <a href="/items/{{ item.id }}" class="btn-card-action">View & Claim</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: #48bb78; margin-bottom: 1rem;"></i>
+            <p>No lost items reported currently. The campus is safe!</p>
+        </div>
+    {% endif %}
+</div>
+
+<div id="PersonalZone" class="tab-content" style="display: none;">
+    <h3 class="section-title"><i class="fas fa-search"></i> Items I Found</h3>
+    {% if my_found_items %}
+        <div class="items-grid">
+            {% for item in my_found_items %}
+            <div class="item-card found-card">
+                <div class="item-details">
+                    <h4>{{ item.title }}</h4>
+                    <p class="status-text {{ item.status }}">{{ item.status }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">You haven't reported anything yet.</p>
+    {% endif %}
+    
+    <h3 class="section-title" style="margin-top: 2rem;"><i class="fas fa-hand-paper"></i> My Claims</h3>
+    {% if my_claims %}
+        <div class="items-grid">
+            {% for claim in my_claims %}
+            <div class="item-card claim-card">
+                <div class="item-details">
+                    <h4>Item: {{ claim.item.title }}</h4>
+                    <p>Status: <strong>{{ claim.status }}</strong></p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No claims yet.</p>
+    {% endif %}
+</div>
+
+<style>
+    /* HERO SECTION */
+    .hero-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #f8fafc;
+        padding: 4rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-text { flex: 1; min-width: 300px; padding-right: 2rem; }
+    .hero-text h1 { font-size: 3rem; color: #1a202c; line-height: 1.2; margin-bottom: 1rem; font-weight: 800; letter-spacing: -1px; }
+    .hero-text p { color: #4a5568; font-size: 1.1rem; margin-bottom: 2rem; max-width: 450px; }
+
+    .hero-image { flex: 1; min-width: 300px; display: flex; justify-content: flex-end; }
+    .hero-image img { width: 100%; max-width: 500px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+
+    /* BUTTONS */
+    .hero-buttons { display: flex; gap: 1rem; }
+    
+    .btn-hero-green {
+        background-color: #22c55e;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px; /* Slightly squarer for professional look */
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-hero-green:hover { background-color: #16a34a; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); }
+
+    .btn-hero-outline {
+        background: transparent;
+        color: #2d3748;
+        border: 2px solid #cbd5e0;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-hero-outline:hover { border-color: #22c55e; color: #22c55e; background-color: #f0fdf4; }
+
+    /* HOW IT WORKS */
+    .how-it-works { text-align: center; margin-bottom: 4rem; }
+    .section-heading { font-size: 2rem; margin-bottom: 2rem; color: #2d3748; font-weight: 700; }
+    
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+    
+    .step-card {
+        background: white;
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+        border: 1px solid #f1f5f9;
+    }
+    .step-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+    
+    .icon-circle {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        background: #ebf8ff;
+        color: #3182ce;
+        width: 70px;
+        height: 70px;
+        line-height: 70px;
+        border-radius: 20px; /* Modern "Squircle" */
+        margin: 0 auto 1.5rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .step-card h3 { margin-bottom: 0.5rem; color: #2d3748; font-weight: 700; }
+    .step-card p { color: #718096; font-size: 0.95rem; line-height: 1.5; }
+
+    /* CARD STYLES */
+    .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #edf2f7; transition: transform 0.2s; }
+    .item-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    
+    .item-image-placeholder { height: 180px; background: #f7fafc; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #cbd5e0; }
+    .item-details { padding: 1.5rem; }
+    .item-details h4 { margin: 0 0 0.5rem 0; color: #2d3748; font-size: 1.1rem; }
+    .location { color: #718096; font-size: 0.9rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    
+    .btn-card-action { display: block; text-align: center; border: 1px solid #3182ce; color: #3182ce; padding: 0.6rem; border-radius: 6px; text-decoration: none; font-weight: 500; transition: background 0.2s; }
+    .btn-card-action:hover { background: #3182ce; color: white; }
+
+    /* TABS */
+    .tabs-container { border-bottom: 1px solid #e2e8f0; margin-bottom: 2rem; }
+    .tab-link { background: none; border: none; padding: 1rem 1.5rem; font-size: 1rem; font-weight: 600; color: #718096; cursor: pointer; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .tab-link:hover { color: #4a5568; }
+    .tab-link.active { color: #3182ce; border-bottom: 2px solid #3182ce; margin-bottom: -1px; }
+    
+    /* UTILS */
+    .text-muted { color: #a0aec0; font-style: italic; }
+    .section-title { font-size: 1.25rem; color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .empty-state { text-align: center; padding: 4rem 2rem; background: #f8fafc; border-radius: 12px; color: #718096; border: 2px dashed #e2e8f0; }
+    
+    /* ADMIN */
+    .admin-panel { background: #2d3748; color: white; padding: 2rem; border-radius: 12px; margin-bottom: 3rem; }
+    .admin-header h3 { display: flex; align-items: center; gap: 0.75rem; }
+</style>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    function scrollToFeed() {
+        document.getElementById("feed-section").scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+{% endblock %}

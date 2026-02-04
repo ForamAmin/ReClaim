@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from backend.database import SessionLocal
 from backend.services import auth_service
+from backend.services import admin_service  
+
 router = APIRouter()
 
 # Setup Templates again (Traffic cops need to know where HTML is)
@@ -41,4 +43,11 @@ def perform_login(
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "user_email": user.email
+    })
+@router.get("/about")
+def about_page(request: Request):
+    # We pass the user_email here too, so the navbar stays "Logged In"
+    return templates.TemplateResponse("about.html", {
+        "request": request,
+        "user_email": "student1@uni.edu" 
     })
