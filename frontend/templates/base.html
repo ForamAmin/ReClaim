@@ -1,0 +1,65 @@
+<!-- Page for navbar and footer ! , that will be common for all pages -->
+<!-- This will contain :
+navbar
+page content (Changes , i.e child pages can inject their content here)
+footer -->
+
+<!-- Base layout: common navbar and footer for all pages -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# Here {% block title %} allows child pages to override the title #}
+    
+    <title>{% block title %}ReClaim: UniConnect{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            ReClaim: <span>UniConnect</span>
+        </div>
+
+        <div class="nav-links">
+            <!--Checks if the backend send a variable named user_email
+            if yes then user is logged in , printing the value of the variable -->
+            {% if user_email %}
+                <span class="user-info">Hello, {{ user_email }}</span>
+                <a href="/dashboard" class="nav-item">Dashboard</a>
+                <a href="/about" class="nav-item">About</a>
+                <a href="/logout" class="btn-logout">Logout</a>
+            {% else %}
+            <!--If not then show Login link -->
+                <a href="/login" class="nav-item">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- OPTIONAL MESSAGE AREA -->
+     <!--Looks for a message variable like login sucessfull or invalid password from backend and displays it -->
+    {% if message %}
+    <div class="container">
+        <div class="alert">
+            {{ message }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MAIN CONTENT -->
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>&copy; 2026 ReClaim Project.</p>
+    </footer>
+
+</body>
+</html>

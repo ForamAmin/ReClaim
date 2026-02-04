@@ -1,0 +1,38 @@
+ <!-- Page for login for both admins and users -->
+{% extends "base.html" %}
+
+{% block title %}
+Login | ReClaim: UniConnect
+{% endblock %}
+
+{% block content %}
+
+<div class="login-container">
+    <h2>Student Login</h2>
+    <p class="login-subtext">
+        Please login using your college email ID
+    </p>
+
+    <form method="post" action="/login">
+        
+        <div class="form-group">
+            <label for="email">College Email</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="yourname@college.edu"
+                required
+            >
+            <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn-primary">
+            Login
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}
