@@ -1,25 +1,31 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
-from backend import database
-from backend import models
-from backend.routes import auth, dashboard # <--- Import the router
-    
-# 1. Setup DB
+
+# IMPORTS
+from backend import database, models
+from backend.routes import auth, dashboard
+from backend.config import SECRET_KEY  # <--- NEW CLEAN IMPORT
+
+# Setup DB
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="ReClaim: UniConnect")
 
-# 2. Setup Static Files
+# 1. USE THE KEY FROM CONFIG
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+# Setup Static
 BASE_DIR = Path(__file__).resolve().parent 
 FRONTEND_DIR = BASE_DIR.parent / "frontend"
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "static")), name="static")
 
-# 3. INCLUDE ROUTERS (The Clean Magic)
+# Include Routers
 app.include_router(auth.router)
-app.include_router(dashboard.router) 
-# 4. Root Route (Optional redirect)
+app.include_router(dashboard.router)
+
 @app.get("/")
-def home(request: Request):
+def home():
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/login")
