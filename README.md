@@ -14,10 +14,10 @@
     
 
 ## 🛠 Tech Stack
-1) Frontend: HTML , CSS, JavaScript
+1) Frontend: HTML , CSS, JavaScript , Jinja2 (for templating)
 2) Backend: FastAPI (Python)
 3) Database: SQLite
-4) Authentication: OAuth2 with College Email
+4) Authentication: OAuth2 with College Email , Session Middleware (cookies)
 5) Hosting: Heroku / Vercel
 6) Version Control: Git & GitHub
 
