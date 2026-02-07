@@ -1,20 +1,54 @@
-<!-- About the website -->
 {% extends "base.html" %}
 
-{% block title %}About ReClaim: UniConnect{% endblock %}
+{% block title %}About Us | ReClaim{% endblock %}
 
 {% block content %}
+
+<div class="about-container">
     <h1>About ReClaim: UniConnect</h1>
-    <p>
-        ReClaim: UniConnect is a platform dedicated to helping students reclaim and connect with their academic journeys. Our mission is to provide resources, support, and a community for students navigating the challenges of university life.
+    
+    <p class="mission-text">
+        ReClaim is designed to build trust on campus. We bridge the gap between lost items 
+        and their owners through a secure, verifiable claiming process.
     </p>
-    <h2>Our Features</h2>
-    <ul>
-        <li><strong>Lost and Found:</strong> A system to help students report and recover lost items on campus.</li>
-    </ul>
-    <h2>How ? </h2>
-    <p>
-        Students can create accounts, report lost items, and browse found items. Our platform uses a user-friendly interface to make the process seamless and efficient.
-    <h2>Contact Us</h2>
-    <p>
-        If you have any questions or would like to get involved, please reach out to us at <a href="mailto:support@reclaimuniconnect.com">support@reclaimuniconnect.com</a>.
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="icon-circle">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3>Secure</h3>
+            <p>Only verified students can access and claim items.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="icon-circle">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3>Fast</h3>
+            <p>Instant reporting and real-time dashboard updates.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="icon-circle">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>Community</h3>
+            <p>Built by students, for the safety of students.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .about-container { max-width: 900px; margin: 4rem auto; text-align: center; }
+    .about-container h1 { font-size: 2.5rem; color: #2d3748; margin-bottom: 1.5rem; font-weight: 800; }
+    .mission-text { font-size: 1.2rem; color: #4a5568; line-height: 1.8; margin-bottom: 4rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+    
+    .features-grid { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+    .feature-card { background: white; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; width: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .feature-card .icon-circle { width: 60px; height: 60px; background: #ebf8ff; color: #3182ce; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem auto; }
+    .feature-card h3 { color: #2d3748; margin-bottom: 0.5rem; }
+    .feature-card p { color: #718096; font-size: 0.9rem; }
+</style>
+
+{% endblock %}
