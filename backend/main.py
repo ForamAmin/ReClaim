@@ -5,7 +5,7 @@ from pathlib import Path
 
 # IMPORTS
 from backend import database, models
-from backend.routes import auth, dashboard
+from backend.routes import auth, dashboard, report
 from backend.config import SECRET_KEY  # <--- NEW CLEAN IMPORT
 
 # Setup DB
@@ -24,6 +24,7 @@ app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "static")), name="
 # Include Routers
 app.include_router(auth.router)
 app.include_router(dashboard.router)
+app.include_router(report.router)
 
 @app.get("/")
 def home():
