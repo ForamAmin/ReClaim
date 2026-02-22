@@ -32,8 +32,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         request.session.clear()
         return RedirectResponse(url="/login")
 
-    # 3. Delegate to Service
+    # 3. Delegate to Service i.e Build the Dashboard Context (Data + User Info)
     context_data = dashboard_service.build_dashboard_context(db, user, request)
+    context_data["message"] = request.session.pop("message", None)
 
     # 4. Render
     return templates.TemplateResponse("dashboard.html", context_data)

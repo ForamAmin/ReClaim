@@ -9,7 +9,7 @@ def build_dashboard_context(db: Session, user: models.User, request_obj):
     """
     
     # 1. Gather Data (Delegating to other services)
-    public_items = item_service.get_all_items(db)
+    public_items = item_service.get_all_items(db, exclude_finder_id=user.id)
     my_found = item_service.get_items_by_finder(db, user.id)
     my_claims = item_service.get_claims_by_user(db, user.id)
 

@@ -1,54 +1,656 @@
 {% extends "base.html" %}
 
-{% block title %}About Us | ReClaim{% endblock %}
+{% block title %}About | ReClaim: UniConnect{% endblock %}
 
 {% block content %}
 
-<div class="about-container">
-    <h1>About ReClaim: UniConnect</h1>
-    
-    <p class="mission-text">
-        ReClaim is designed to build trust on campus. We bridge the gap between lost items 
-        and their owners through a secure, verifiable claiming process.
+<style>
+  /* ── TOKENS (inherit from base, extend locally) ── */
+  :root {
+    --navy:         #1F2937;
+    --emerald:      #10B981;
+    --emerald-light:#D1FAE5;
+    --emerald-glow: rgba(16,185,129,0.15);
+    --ghost:        #F9FAFB;
+    --muted:        #6B7280;
+    --border:       #E5E7EB;
+    --charcoal:     #111827;
+  }
+
+  /* ── PAGE WRAPPER ─────────────────────────────── */
+  .about-page {
+    padding-bottom: 6rem;
+    overflow: hidden;
+  }
+
+  /* ── HERO ─────────────────────────────────────── */
+  .about-hero {
+    text-align: center;
+    padding: 5rem 2rem 4rem;
+    position: relative;
+  }
+
+  /* Ambient background blobs */
+  .about-hero::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 65%);
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    animation: blobPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes blobPulse {
+    from { transform: translateX(-50%) scale(1); opacity: 0.7; }
+    to   { transform: translateX(-50%) scale(1.12); opacity: 1; }
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--emerald-light);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--emerald);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 1.75rem;
+    animation: fadeUp 0.55s ease both;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow i { font-size: 0.65rem; }
+
+  .about-title {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 800;
+    color: var(--charcoal);
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.55s 0.08s ease both;
+    position: relative;
+    z-index: 1;
+  }
+
+  .about-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    background: linear-gradient(135deg, var(--emerald), #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .about-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 580px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 0.55s 0.16s ease both;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── STAT STRIP ───────────────────────────────── */
+  .stat-strip {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    max-width: 560px;
+    margin: 0 auto 5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 20px rgba(17,24,39,0.05);
+    animation: fadeUp 0.55s 0.24s ease both;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat-item {
+    flex: 1;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .stat-item:last-child { border-right: none; }
+  .stat-item:hover { background: var(--ghost); }
+
+  .stat-num {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--emerald);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stat-lbl {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  /* ── FEATURES GRID ────────────────────────────── */
+  .section-label {
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    animation: fadeUp 0.55s ease both;
+  }
+
+  .section-heading {
+    text-align: center;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: var(--charcoal);
+    letter-spacing: -0.035em;
+    margin-bottom: 2.75rem;
+    animation: fadeUp 0.55s 0.06s ease both;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .feature-card {
+    background: white;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s;
+    cursor: default;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .feature-card:nth-child(1) { animation-delay: 0.1s; }
+  .feature-card:nth-child(2) { animation-delay: 0.18s; }
+  .feature-card:nth-child(3) { animation-delay: 0.26s; }
+
+  /* Emerald sweep on hover */
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--emerald), #6EE7B7);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .feature-card:hover { background: var(--ghost); }
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--emerald-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emerald);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, background 0.25s;
+  }
+
+  .feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(-5deg);
+    background: var(--emerald);
+    color: white;
+  }
+
+  .feature-card h3 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* ── HOW IT WORKS ─────────────────────────────── */
+  .steps-section {
+    background: var(--ghost);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 3.5rem 3rem;
+    margin-bottom: 5rem;
+  }
+
+  .steps-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2.5rem;
+    position: relative;
+  }
+
+  /* Connector line between steps */
+  .steps-row::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: calc(16.66% + 24px);
+    right: calc(16.66% + 24px);
+    height: 1.5px;
+    background: linear-gradient(90deg, var(--border), var(--emerald), var(--border));
+    z-index: 0;
+  }
+
+  .step {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .step:nth-child(1) { animation-delay: 0.1s; }
+  .step:nth-child(2) { animation-delay: 0.2s; }
+  .step:nth-child(3) { animation-delay: 0.3s; }
+
+  .step-circle {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--muted);
+    transition: all 0.25s;
+    box-shadow: 0 2px 8px rgba(17,24,39,0.06);
+  }
+
+  .step:hover .step-circle {
+    border-color: var(--emerald);
+    color: var(--emerald);
+    box-shadow: 0 0 0 6px var(--emerald-glow);
+    transform: scale(1.08);
+  }
+
+  .step h4 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .step p {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── TEAM / BUILT BY SECTION ──────────────────── */
+  .built-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+  }
+
+  .built-card {
+    background: white;
+    padding: 3rem 2.5rem;
+    transition: background 0.2s;
+  }
+
+  .built-card:hover { background: var(--ghost); }
+
+  .built-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--emerald);
+    background: var(--emerald-light);
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+  }
+
+  .built-card h3 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--charcoal);
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .built-card p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .built-card-dark {
+    background: var(--navy);
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .built-card-dark::after {
+    content: '';
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%);
+    bottom: -80px;
+    right: -60px;
+    pointer-events: none;
+  }
+
+  .built-card-dark .built-tag {
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.25);
+    color: #34D399;
+  }
+
+  .built-card-dark h3 { color: #F9FAFB; }
+  .built-card-dark p { color: rgba(249,250,251,0.5); }
+
+  /* ── CTA BANNER ───────────────────────────────── */
+  .cta-banner {
+    background: linear-gradient(135deg, var(--navy) 0%, #111827 100%);
+    border-radius: 24px;
+    padding: 4rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.55s ease both;
+  }
+
+  .cta-banner::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 65%);
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    animation: blobPulse 6s ease-in-out infinite alternate;
+  }
+
+  .cta-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+
+  .cta-banner h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    color: #F9FAFB;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-banner h2 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #34D399;
+  }
+
+  .cta-banner p {
+    font-size: 0.95rem;
+    color: rgba(249,250,251,0.5);
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--emerald);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    padding: 13px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.22s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-cta-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -80%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.45s;
+  }
+  .btn-cta-primary:hover::before { left: 160%; }
+  .btn-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(16,185,129,0.3);
+  }
+  .btn-cta-primary i { transition: transform 0.2s; }
+  .btn-cta-primary:hover i { transform: translateX(3px); }
+
+  .btn-cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.07);
+    color: rgba(249,250,251,0.8);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-cta-ghost:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.22);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  /* ── ANIMATIONS ───────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ───────────────────────────────── */
+  @media (max-width: 860px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .steps-row { grid-template-columns: 1fr; }
+    .steps-row::before { display: none; }
+    .built-section { grid-template-columns: 1fr; }
+    .steps-section { padding: 2.5rem 1.5rem; }
+    .cta-banner { padding: 3rem 1.75rem; }
+  }
+</style>
+
+<div class="about-page">
+
+  <!-- ═══════ HERO ═══════ -->
+  <div class="about-hero">
+    <div class="hero-eyebrow">
+      <i class="fas fa-magnifying-glass"></i> Our Mission
+    </div>
+    <h1 class="about-title">
+      Building <em>trust,</em><br>one found item at a time.
+    </h1>
+    <p class="about-sub">
+      ReClaim bridges the gap between lost items and their rightful owners — through a secure, verifiable, and surprisingly human process.
     </p>
 
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="icon-circle">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h3>Secure</h3>
-            <p>Only verified students can access and claim items.</p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="icon-circle">
-                <i class="fas fa-bolt"></i>
-            </div>
-            <h3>Fast</h3>
-            <p>Instant reporting and real-time dashboard updates.</p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="icon-circle">
-                <i class="fas fa-users"></i>
-            </div>
-            <h3>Community</h3>
-            <p>Built by students, for the safety of students.</p>
-        </div>
+    <div class="stat-strip">
+      <div class="stat-item">
+        <span class="stat-num">98%</span>
+        <span class="stat-lbl">Return Rate</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">2 days</span>
+        <span class="stat-lbl">Avg. Reunion</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">1,200+</span>
+        <span class="stat-lbl">Students Helped</span>
+      </div>
     </div>
-</div>
+  </div>
 
-<style>
-    .about-container { max-width: 900px; margin: 4rem auto; text-align: center; }
-    .about-container h1 { font-size: 2.5rem; color: #2d3748; margin-bottom: 1.5rem; font-weight: 800; }
-    .mission-text { font-size: 1.2rem; color: #4a5568; line-height: 1.8; margin-bottom: 4rem; max-width: 700px; margin-left: auto; margin-right: auto; }
-    
-    .features-grid { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
-    .feature-card { background: white; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; width: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .feature-card .icon-circle { width: 60px; height: 60px; background: #ebf8ff; color: #3182ce; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem auto; }
-    .feature-card h3 { color: #2d3748; margin-bottom: 0.5rem; }
-    .feature-card p { color: #718096; font-size: 0.9rem; }
-</style>
+  <!-- ═══════ FEATURES ═══════ -->
+  <div class="section-label">What makes us different</div>
+  <div class="section-heading">Built on three pillars.</div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+      <h3>Secure</h3>
+      <p>Only verified campus students can access, report, or claim items. Every claim is gated behind ownership questions so the right person always gets their stuff back.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+      <h3>Fast</h3>
+      <p>Instant reporting, real-time dashboard updates, and email notifications mean you'll hear about your item as soon as it's found — not days later.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-users"></i></div>
+      <h3>Community</h3>
+      <p>Built by students, for students. Every interaction is designed to encourage honesty, good faith, and genuine campus connection.</p>
+    </div>
+  </div>
+
+  <!-- ═══════ HOW IT WORKS ═══════ -->
+  <div class="steps-section">
+    <div class="section-label" style="text-align:left;">Process</div>
+    <div class="section-heading" style="text-align:left; margin-bottom:0;">How it works, simply.</div>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-circle">01</div>
+        <h4>Report</h4>
+        <p>Found something? Upload a photo and location. Takes under a minute.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">02</div>
+        <h4>Verify</h4>
+        <p>Claimants answer security questions to prove ownership before anything is handed over.</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">03</div>
+        <h4>Return</h4>
+        <p>Items are safely returned via the Admin office or a coordinated direct meetup.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ BUILT BY / VALUES ═══════ -->
+  <div class="built-section">
+    <div class="built-card">
+      <span class="built-tag"><i class="fas fa-heart" style="font-size:0.6rem;"></i> Origin</span>
+      <h3>Made on campus, for campus.</h3>
+      <p>ReClaim started because we kept seeing the same problem — lost wallets on notice boards, unclaimed bags at security, frustrated students. We knew there had to be a better way.</p>
+    </div>
+    <div class="built-card-dark">
+      <span class="built-tag"><i class="fas fa-star" style="font-size:0.6rem;"></i> Values</span>
+      <h3 style="color:#F9FAFB;">Honesty. Speed. Trust.</h3>
+      <p>We believe that most people are fundamentally good. ReClaim is designed to remove friction and give good people the tools to do the right thing, easily.</p>
+    </div>
+  </div>
+
+  <!-- ═══════ CTA ═══════ -->
+  <div class="cta-banner">
+    <h2>Ready to <em>find something?</em></h2>
+    <p>Join 1,200+ students already using ReClaim on campus.</p>
+    <div class="cta-actions">
+      <a href="/items/report" class="btn-cta-primary">
+        <i class="fas fa-plus"></i> Report a Found Item
+      </a>
+      <a href="/dashboard" class="btn-cta-ghost">
+        <i class="fas fa-stream"></i> Browse the Feed
+      </a>
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}

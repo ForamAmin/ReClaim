@@ -1,5 +1,8 @@
 from sqlalchemy.orm import Session
 from backend import models
+# services/auth_service.py
+from fastapi import Request, HTTPException
+from fastapi.responses import RedirectResponse
 
 def get_user_by_email(db: Session, email: str):
     """Worker function: Just finds the user."""
@@ -21,3 +24,15 @@ def authenticate_user(db: Session, email: str, password: str):
         return None  # Wrong password
         
     return user  # Success!
+
+def get_current_user_from_session(request: Request):
+    # Retrieve the session ID from cookies
+    session_id = request.cookies.get("session_id")
+    
+    if not session_id:
+        # If no cookie, the user is 'delusional' about being logged in
+        return None
+    
+    # Logic to look up session_id in SQLite would go here
+    # For now, return a dummy user or the session_id
+    return session_id
