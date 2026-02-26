@@ -1,0 +1,841 @@
+{% extends "base.html" %}
+
+{% block title %}Report Found Item | ReClaim{% endblock %}
+
+{% block content %}
+
+<style>
+  :root {
+    --navy:         #1F2937;
+    --emerald:      #10B981;
+    --emerald-light:#D1FAE5;
+    --emerald-glow: rgba(16,185,129,0.18);
+    --ghost:        #F9FAFB;
+    --muted:        #6B7280;
+    --border:       #E5E7EB;
+    --charcoal:     #111827;
+    --surface-2:    #F3F4F6;
+    --red:          #EF4444;
+  }
+
+  /* ── PAGE LAYOUT ──────────────────────────────── */
+  .report-page {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 3rem;
+    padding: 3.5rem 0 6rem;
+    align-items: start;
+  }
+
+  /* ── LEFT: FORM ───────────────────────────────── */
+  .form-panel {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .form-head { margin-bottom: 2.5rem; }
+
+  .form-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--emerald-light);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--emerald);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    padding: 5px 13px;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+  }
+
+  .form-title {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: var(--charcoal);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+  }
+
+  .form-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    background: linear-gradient(135deg, var(--emerald), #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 440px;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    margin-bottom: 2.5rem;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    transition: color 0.3s;
+  }
+
+  .progress-label.active { color: var(--emerald); }
+  .progress-label.done { color: var(--navy); }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--emerald), #6EE7B7);
+    border-radius: 100px;
+    width: 33%;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── FORM SECTIONS ────────────────────────────── */
+  .form-section {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5px;
+    transition: border-color 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--emerald), #6EE7B7);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+
+  .form-section:focus-within { border-color: rgba(16,185,129,0.4); }
+  .form-section:focus-within::before { transform: scaleX(1); }
+
+  .form-section:first-of-type { border-radius: 16px 16px 4px 4px; }
+  .form-section:last-of-type { border-radius: 4px 4px 16px 16px; margin-bottom: 0; }
+
+  .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: var(--surface-2);
+    border-radius: 7px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  .form-section:focus-within .section-num {
+    background: var(--emerald-light);
+    color: var(--emerald);
+  }
+
+  .section-title {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ── FIELD ────────────────────────────────────── */
+  .field { margin-bottom: 1.1rem; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .field label {
+    display: block;
+    font-size: 0.79rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 7px;
+    letter-spacing: -0.01em;
+  }
+
+  .field label span.req { color: var(--emerald); margin-left: 2px; }
+
+  .field-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .field-hint i { font-size: 0.65rem; }
+
+  /* Input base */
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    background: var(--ghost);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-input, .form-select { padding: 12px 14px; }
+  .form-textarea { padding: 12px 14px; resize: vertical; min-height: 100px; line-height: 1.6; }
+
+  .form-input::placeholder, .form-textarea::placeholder { color: #D1D5DB; }
+
+  .form-input:hover, .form-select:hover, .form-textarea:hover { border-color: #9CA3AF; }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--emerald);
+    background: white;
+    box-shadow: 0 0 0 3px var(--emerald-glow);
+  }
+
+  /* Category pills */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .cat-pill {
+    position: relative;
+  }
+
+  .cat-pill input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+  }
+
+  .cat-pill label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    background: var(--ghost);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: center;
+    transition: all 0.2s;
+    margin-bottom: 0;
+    letter-spacing: -0.01em;
+    user-select: none;
+  }
+
+  .cat-pill label i {
+    font-size: 1.1rem;
+    transition: transform 0.2s;
+  }
+
+  .cat-pill label:hover {
+    border-color: var(--emerald);
+    color: var(--emerald);
+    background: var(--emerald-light);
+    transform: translateY(-2px);
+  }
+
+  .cat-pill label:hover i { transform: scale(1.15) rotate(-5deg); }
+
+  .cat-pill input[type="radio"]:checked + label {
+    border-color: var(--emerald);
+    background: var(--emerald-light);
+    color: var(--charcoal);
+    box-shadow: 0 0 0 3px var(--emerald-glow);
+  }
+
+  .cat-pill input[type="radio"]:checked + label i { color: var(--emerald); }
+
+  /* ── IMAGE UPLOAD ─────────────────────────────── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    background: var(--ghost);
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--emerald);
+    background: var(--emerald-light);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon {
+    width: 52px;
+    height: 52px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin: 0 auto 1rem;
+    transition: all 0.25s;
+  }
+
+  .upload-zone:hover .upload-icon {
+    border-color: var(--emerald);
+    color: var(--emerald);
+    transform: scale(1.05);
+  }
+
+  .upload-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .upload-sub { font-size: 0.76rem; color: var(--muted); }
+
+  .upload-preview {
+    display: none;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    background: var(--surface-2);
+  }
+
+  .upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .upload-preview-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: rgba(17,24,39,0.7);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.72rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .upload-preview-remove:hover { background: var(--red); }
+
+  /* ── SUBMIT ───────────────────────────────────── */
+  .btn-submit-main {
+    width: 100%;
+    padding: 15px;
+    background: var(--navy);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+    letter-spacing: -0.01em;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit-main::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -80%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-submit-main:hover::before { left: 160%; }
+
+  .btn-submit-main:hover {
+    background: var(--emerald);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px var(--emerald-glow);
+  }
+
+  .btn-submit-main:active { transform: translateY(0); }
+  .btn-submit-main i { transition: transform 0.2s; }
+  .btn-submit-main:hover i { transform: translateX(4px); }
+
+  /* ── RIGHT PANEL: SIDEBAR ─────────────────────── */
+  .sidebar {
+    position: sticky;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: fadeUp 0.55s 0.15s ease both;
+  }
+
+  .sidebar-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+  }
+
+  .sidebar-card-title {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-card-title i { color: var(--emerald); font-size: 0.85rem; }
+
+  .tip-list { display: flex; flex-direction: column; gap: 0.85rem; }
+
+  .tip-item {
+    display: flex;
+    gap: 10px;
+    font-size: 0.83rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .tip-dot {
+    width: 20px;
+    height: 20px;
+    background: var(--emerald-light);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emerald);
+    font-size: 0.6rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Dark sidebar card */
+  .sidebar-card-dark {
+    background: var(--navy);
+    border-color: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar-card-dark::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
+    bottom: -60px; right: -40px;
+    pointer-events: none;
+  }
+
+  .sidebar-card-dark .sidebar-card-title { color: #F9FAFB; }
+  .sidebar-card-dark .sidebar-card-title i { color: #34D399; }
+
+  .privacy-items { display: flex; flex-direction: column; gap: 0.75rem; position: relative; z-index: 1; }
+
+  .privacy-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: rgba(249,250,251,0.55);
+  }
+
+  .privacy-item i { color: #34D399; font-size: 0.72rem; width: 14px; text-align: center; }
+
+  /* ── ANIMATIONS ───────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Stagger form sections */
+  .form-section:nth-child(1) { animation: fadeUp 0.45s 0.1s ease both; }
+  .form-section:nth-child(2) { animation: fadeUp 0.45s 0.18s ease both; }
+  .form-section:nth-child(3) { animation: fadeUp 0.45s 0.26s ease both; }
+  .form-section:nth-child(4) { animation: fadeUp 0.45s 0.34s ease both; }
+
+  /* ── RESPONSIVE ───────────────────────────────── */
+  @media (max-width: 900px) {
+    .report-page { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .category-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; }
+    .category-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div class="report-page">
+
+  <!-- ═══════════════════ FORM ═══════════════════ -->
+  <div class="form-panel">
+    <div class="form-head">
+      <div class="form-eyebrow">
+        <i class="fas fa-magnifying-glass"></i> Found Something?
+      </div>
+      <h1 class="form-title">Report a <em>found</em> item.</h1>
+      <p class="form-subtitle">The more detail you add, the faster we can reunite it with its owner. Takes about 2 minutes.</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap">
+      <div class="progress-labels">
+        <span class="progress-label active" id="prog-1">Details</span>
+        <span class="progress-label" id="prog-2">Photo</span>
+        <span class="progress-label" id="prog-3">Submit</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <form method="post" action="/items/report" enctype="multipart/form-data" id="report-form">
+
+      <!-- SECTION 1: Basic Details -->
+      <div class="form-section">
+        <div class="section-num">01</div>
+        <div class="section-title">
+          <i class="fas fa-tag" style="color:var(--emerald);font-size:0.85rem;"></i>
+          Basic Details
+        </div>
+
+        <div class="field">
+          <label for="title">Item Title <span class="req">*</span></label>
+          <input class="form-input" type="text" id="title" name="title"
+            placeholder="e.g. Blue JBL Earbuds, Black Wallet, Student ID…" required>
+          <div class="field-hint"><i class="fas fa-lightbulb"></i> Be specific — brand, color, and type help a lot.</div>
+        </div>
+
+        <div class="field">
+          <label for="description">Description <span class="req">*</span></label>
+          <textarea class="form-textarea" id="description" name="description"
+            placeholder="Describe the item in detail — any marks, stickers, or unique features that help prove ownership…" required></textarea>
+          <div class="field-hint"><i class="fas fa-eye-slash"></i> The owner will be asked a secret question about this — so the more detail, the better.</div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Category -->
+      <div class="form-section">
+        <div class="section-num">02</div>
+        <div class="section-title">
+          <i class="fas fa-shapes" style="color:var(--emerald);font-size:0.85rem;"></i>
+          Category <span style="color:var(--emerald);margin-left:2px;">*</span>
+        </div>
+        <div class="category-grid">
+
+          <div class="cat-pill">
+            <input type="radio" id="cat-electronics" name="category" value="Electronics">
+            <label for="cat-electronics"><i class="fas fa-laptop"></i>Electronics</label>
+          </div>
+          <div class="cat-pill">
+            <input type="radio" id="cat-clothing" name="category" value="Clothing">
+            <label for="cat-clothing"><i class="fas fa-shirt"></i>Clothing</label>
+          </div>
+          <div class="cat-pill">
+            <input type="radio" id="cat-bag" name="category" value="Bag / Wallet">
+            <label for="cat-bag"><i class="fas fa-briefcase"></i>Bag / Wallet</label>
+          </div>
+          <div class="cat-pill">
+            <input type="radio" id="cat-id" name="category" value="ID / Documents">
+            <label for="cat-id"><i class="fas fa-id-card"></i>ID / Docs</label>
+          </div>
+          <div class="cat-pill">
+            <input type="radio" id="cat-keys" name="category" value="Keys">
+            <label for="cat-keys"><i class="fas fa-key"></i>Keys</label>
+          </div>
+          <div class="cat-pill">
+            <input type="radio" id="cat-other" name="category" value="Other">
+            <label for="cat-other"><i class="fas fa-box"></i>Other</label>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SECTION 3: Location & Date -->
+      <div class="form-section">
+        <div class="section-num">03</div>
+        <div class="section-title">
+          <i class="fas fa-location-dot" style="color:var(--emerald);font-size:0.85rem;"></i>
+          Where & When
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="location_found">Location Found <span class="req">*</span></label>
+            <input class="form-input" type="text" id="location_found" name="location_found"
+              placeholder="e.g. Library, Room 204, Canteen…" required>
+          </div>
+          <div class="field">
+            <label for="date_found">Date Found</label>
+            <input class="form-input" type="date" id="date_found" name="date_found">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Photo Upload -->
+      <div class="form-section">
+        <div class="section-num">04</div>
+        <div class="section-title">
+          <i class="fas fa-camera" style="color:var(--emerald);font-size:0.85rem;"></i>
+          Photo <span style="color:var(--emerald);margin-left:2px;">*</span>
+        </div>
+
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" name="image" id="image-input" accept="image/*" required>
+          <div class="upload-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+          <div class="upload-label">Drop a photo here, or click to browse</div>
+          <div class="upload-sub">JPG, PNG or WEBP · Max 10MB</div>
+        </div>
+
+        <div class="upload-preview" id="upload-preview">
+          <img id="preview-img" src="" alt="Preview">
+          <button type="button" class="upload-preview-remove" id="remove-img">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="field-hint" style="margin-top:10px;">
+          <i class="fas fa-shield-halved"></i>
+          A clear photo builds trust and makes verification much faster.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit-main">
+        Submit Report <i class="fas fa-arrow-right"></i>
+      </button>
+
+    </form>
+  </div>
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">
+        <i class="fas fa-lightbulb"></i> Tips for a Good Report
+      </div>
+      <div class="tip-list">
+        <div class="tip-item">
+          <div class="tip-dot"><i class="fas fa-camera"></i></div>
+          <span>Take a clear, well-lit photo of the item before handing it in.</span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-dot"><i class="fas fa-pen"></i></div>
+          <span>Describe unique details — scratches, stickers, initials — that only the owner would know.</span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-dot"><i class="fas fa-location-dot"></i></div>
+          <span>Be specific about the location. "Near the left window in Library Room 2" beats "Library."</span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-dot"><i class="fas fa-clock"></i></div>
+          <span>Submit as soon as possible — items reported quickly get returned twice as fast.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-card sidebar-card-dark">
+      <div class="sidebar-card-title">
+        <i class="fas fa-shield-halved"></i> Your Privacy
+      </div>
+      <div class="privacy-items">
+        <div class="privacy-item">
+          <i class="fas fa-check"></i> Your email is never shown publicly.
+        </div>
+        <div class="privacy-item">
+          <i class="fas fa-check"></i> Only the Admin can see finder identity.
+        </div>
+        <div class="privacy-item">
+          <i class="fas fa-check"></i> Claims are verified before any contact.
+        </div>
+        <div class="privacy-item">
+          <i class="fas fa-check"></i> You're protected from false claims.
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-card" style="background:var(--ghost); border-style:dashed;">
+      <div class="sidebar-card-title" style="font-size:0.85rem;">
+        <i class="fas fa-circle-question"></i> What happens next?
+      </div>
+      <p style="font-size:0.82rem; color:var(--muted); line-height:1.65;">
+        Once you submit, the item appears in the public feed. Students can view and submit a claim — but they must answer a secret verification question first. Approved claims go through the Admin office.
+      </p>
+    </div>
+
+  </aside>
+
+</div>
+
+<script>
+  // ── PROGRESS TRACKING ──────────────────────────
+  const fill  = document.getElementById('progress-fill');
+  const prog1 = document.getElementById('prog-1');
+  const prog2 = document.getElementById('prog-2');
+  const prog3 = document.getElementById('prog-3');
+
+  function updateProgress() {
+    const title    = document.getElementById('title').value.trim();
+    const desc     = document.getElementById('description').value.trim();
+    const category = document.querySelector('input[name="category"]:checked');
+    const location = document.getElementById('location_found').value.trim();
+    const image    = document.getElementById('image-input').files.length > 0;
+
+    const step1Done = title && desc && category && location;
+    const step2Done = image;
+
+    if (step2Done && step1Done) {
+      fill.style.width = '100%';
+      prog1.className = 'progress-label done';
+      prog2.className = 'progress-label done';
+      prog3.className = 'progress-label active';
+    } else if (step1Done) {
+      fill.style.width = '66%';
+      prog1.className = 'progress-label done';
+      prog2.className = 'progress-label active';
+      prog3.className = 'progress-label';
+    } else {
+      fill.style.width = '33%';
+      prog1.className = 'progress-label active';
+      prog2.className = 'progress-label';
+      prog3.className = 'progress-label';
+    }
+  }
+
+  document.querySelectorAll('.form-input, .form-textarea, input[name="category"]')
+    .forEach(el => el.addEventListener('input', updateProgress));
+  document.querySelectorAll('input[name="category"]')
+    .forEach(el => el.addEventListener('change', updateProgress));
+
+  // ── IMAGE UPLOAD PREVIEW ───────────────────────
+  const imageInput  = document.getElementById('image-input');
+  const uploadZone  = document.getElementById('upload-zone');
+  const uploadPreview = document.getElementById('upload-preview');
+  const previewImg  = document.getElementById('preview-img');
+  const removeBtn   = document.getElementById('remove-img');
+
+  imageInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        uploadZone.style.display = 'none';
+        uploadPreview.style.display = 'block';
+        updateProgress();
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  removeBtn.addEventListener('click', () => {
+    imageInput.value = '';
+    previewImg.src = '';
+    uploadZone.style.display = 'block';
+    uploadPreview.style.display = 'none';
+    updateProgress();
+  });
+
+  // Drag and drop
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      imageInput.files = e.dataTransfer.files;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        previewImg.src = ev.target.result;
+        uploadZone.style.display = 'none';
+        uploadPreview.style.display = 'block';
+        updateProgress();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // ── SET TODAY AS DEFAULT DATE ──────────────────
+  const dateInput = document.getElementById('date_found');
+  dateInput.value = new Date().toISOString().split('T')[0];
+</script>
+
+{% endblock %}
