@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="/static/css/dashboard.css">
+<script src="/static/js/dashboard.js"></script>
 
 <!-- ═══════════════════════════════════════════════ -->
 <!-- HERO -->
@@ -205,17 +206,7 @@
   </div>
 </section>
 
-<script>
-  function openTab(evt, tabName) {
-    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabName).style.display = 'block';
-    evt.currentTarget.classList.add('active');
-  }
 
-  function scrollToFeed() {
-    document.getElementById('feed-section').scrollIntoView({ behavior: 'smooth' });
-  }
-</script>
+
 
 {% endblock %}
