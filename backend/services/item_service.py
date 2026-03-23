@@ -42,6 +42,7 @@ def create_reported_item(
     category: str,
     location_found: str,
     image_url: str,
+    original_image_url: str,
     date_found: datetime | None = None,
 ):
     item = models.Item(
@@ -50,6 +51,7 @@ def create_reported_item(
         category=category,
         location_found=location_found,
         image_url=image_url,
+        original_image_url=original_image_url,
         finder_id=finder_id,
         date_found=date_found,
         status="OPEN",

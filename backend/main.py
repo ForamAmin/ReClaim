@@ -5,7 +5,7 @@ from pathlib import Path
 
 # IMPORTS
 from backend import database, models
-from backend.routes import auth, dashboard, report
+from backend.routes import auth, dashboard, report, admin
 from backend.config import SECRET_KEY  # <--- NEW CLEAN IMPORT
 from fastapi.staticfiles import StaticFiles
 # Setup DB
@@ -25,6 +25,7 @@ app.mount("/static", StaticFiles(directory=FRONTEND_DIR / "static"), name="stati
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(report.router)
+app.include_router(admin.router)
 
 @app.get("/")
 def home():

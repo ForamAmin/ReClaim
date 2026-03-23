@@ -28,6 +28,7 @@ class Item(Base):
     date_found = Column(DateTime(timezone=True), server_default=func.now())
     
     image_url = Column(String, nullable=False)   # Path to /static/uploads/...
+    original_image_url = Column(String, nullable=True)
     
     # 🔒 HIDDEN AI TAGS (The Magic)
     ai_tags = Column(String, nullable=True) 

@@ -102,8 +102,8 @@
           <div class="l">Users</div>
         </div>
         <div class="a-divider"></div>
-        <a href="/admin/claims" class="admin-cta">
-          <i class="fas fa-gavel"></i> Review Claims
+        <a href="/admin" class="admin-cta">
+          <i class="fas fa-gavel"></i> Admin Panel
         </a>
       </div>
     </div>
@@ -171,7 +171,13 @@
             <div class="items-grid">
               {% for item in my_found_items %}
               <div class="item-card">
-                <div class="item-thumb"><i class="fas fa-box-open"></i></div>
+                <div class="item-thumb">
+  {% if item.original_image_url %}
+    <img class="item-thumb-img" src="{{ item.original_image_url }}" alt="">
+  {% else %}
+    <i class="fas fa-box-open"></i>
+  {% endif %}
+</div>
                 <div class="item-body">
                   <span class="status-badge {{ item.status }}">{{ item.status }}</span>
                   <div class="item-name">{{ item.title }}</div>
@@ -190,7 +196,14 @@
             <div class="claim-list">
               {% for claim in my_claims %}
               <div class="claim-row">
-                <span class="claim-name">{{ claim.item.title }}</span>
+                <div>
+                  <span class="claim-name">{{ claim.item.title }}</span>
+                  {% if claim.timestamp %}
+                    <div class="claim-date" style="font-size: 0.85rem; color: #6B7280; margin-top: 0.25rem;">
+                      Submitted: {{ claim.timestamp.strftime('%b %d, %Y at %I:%M %p') }}
+                    </div>
+                  {% endif %}
+                </div>
                 <span class="status-badge {{ claim.status }}">{{ claim.status }}</span>
               </div>
               {% endfor %}

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel | ReClaim{% endblock %}
+
+{% block content %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/static/css/admin.css">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- ADMIN HEADER -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="admin-header">
+  <div class="section-inner">
+    <div class="admin-breadcrumb">
+      <a href="/dashboard" class="breadcrumb-link">← Back to Dashboard</a>
+    </div>
+    <h1 class="admin-title">
+      <i class="fas fa-shield-halved"></i> Admin Control Center
+    </h1>
+    <p class="admin-subtitle">Manage all reported items and verify ownership claims</p>
+
+    {% if message %}
+    <div class="message-banner success">
+      <i class="fas fa-check-circle"></i> {{ message }}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STATS BAR -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section stats-section">
+  <div class="section-inner">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.total_items }}</div>
+          <div class="stat-label">Total Items Reported</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats.total_users }}</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon conflict-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">
+            {% set conflict_count = items_with_conflicts|selectattr('has_conflict')|list|length %}
+            {{ conflict_count }}
+          </div>
+          <div class="stat-label">Active Conflicts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- ITEMS & CLAIMS TABLE -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section items-section">
+  <div class="section-inner">
+    <div class="section-title">
+      <i class="fas fa-list"></i> All Reported Items
+    </div>
+
+    {% if items_with_conflicts %}
+    <div class="items-container">
+      {% for item_data in items_with_conflicts %}
+      <div class="item-card-admin {% if item_data.has_conflict %}conflict-item{% endif %}">
+        
+        <!-- ITEM HEADER -->
+        <div class="item-header-admin">
+          <div class="item-header-left">
+            <div class="item-thumb-small">
+              {% if item_data.item.image_url %}
+                <img src="{{ item_data.item.image_url }}" alt="{{ item_data.item.title }}">
+              {% else %}
+                <i class="fas fa-box-open"></i>
+              {% endif %}
+            </div>
+            <div class="item-info">
+              <h3 class="item-title-admin">{{ item_data.item.title }}</h3>
+              <p class="item-desc">{{ item_data.item.description }}</p>
+              <div class="item-meta">
+                <span><i class="fas fa-location-dot"></i> {{ item_data.item.location_found }}</span>
+                <span><i class="fas fa-calendar"></i> {{ item_data.item.date_found.strftime('%b %d, %Y') if item_data.item.date_found else 'N/A' }}</span>
+                <span><i class="fas fa-tag"></i> {{ item_data.item.category }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="item-header-right">
+            <div class="finder-card">
+              <div class="finder-label">Reported by</div>
+              <div class="finder-name">
+                <i class="fas fa-user-circle"></i> {{ item_data.item.finder.email }}
+              </div>
+            </div>
+            
+            <div class="status-badge-admin {{ item_data.item.status|lower }}">
+              {{ item_data.item.status }}
+            </div>
+
+            {% if item_data.has_conflict %}
+            <div class="conflict-badge">
+              <i class="fas fa-exclamation-circle"></i> CONFLICT
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- CLAIMS SECTION -->
+        <div class="claims-section">
+          <div class="claims-header">
+            <span><i class="fas fa-handshake"></i> Claims ({{ item_data.claim_count }})</span>
+            {% if item_data.has_conflict %}
+            <span class="conflict-warning">Multiple claims - Admin review required</span>
+            {% endif %}
+          </div>
+
+          {% if item_data.claims %}
+          <div class="claims-list">
+            {% for claim in item_data.claims %}
+            <div class="claim-card {% if claim.status != 'PENDING' %}{{ claim.status|lower }}{% endif %}">
+              <div class="claim-header">
+                <div class="claimer-info">
+                  <div class="claimer-email">
+                    <i class="fas fa-user"></i> {{ claim.claimer.email }}
+                  </div>
+                  <div class="claim-timestamp">
+                    Claimed: {{ claim.timestamp.strftime('%b %d, %Y at %I:%M %p') }}
+                  </div>
+                </div>
+                <div class="claim-status-badge {{ claim.status|lower }}">
+                  {{ claim.status }}
+                </div>
+              </div>
+
+              <div class="claim-body">
+                <div class="claim-proof">
+                  <div class="proof-label">Proof/Description:</div>
+                  <div class="proof-text">{{ claim.description_by_claimer }}</div>
+                </div>
+
+                <div class="match-score">
+                  <div class="score-label">Match Score</div>
+                  <div class="score-bar">
+                    <div class="score-fill" style="width: {{ claim.match_score }}%"></div>
+                  </div>
+                  <div class="score-value">{{ claim.match_score|int }}%</div>
+                </div>
+              </div>
+
+              <!-- ACTION BUTTONS (only for PENDING claims) -->
+              {% if claim.status == 'PENDING' %}
+              <div class="claim-actions">
+                <form method="post" action="/admin/claim/{{ claim.id }}/approve" style="display:inline;">
+                  <button type="submit" class="btn-approve">
+                    <i class="fas fa-check"></i> Approve
+                  </button>
+                </form>
+                <form method="post" action="/admin/claim/{{ claim.id }}/reject" style="display:inline;">
+                  <button type="submit" class="btn-reject">
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                </form>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- CONFLICT RESOLUTION (only if multiple PENDING claims) -->
+          {% if item_data.has_conflict and item_data.pending_claims|length > 1 %}
+          <div class="conflict-resolution">
+            <div class="resolution-header">
+              <i class="fas fa-handshake"></i> Resolve Conflict
+            </div>
+            <div class="resolution-info">
+              Multiple people are claiming this item. Select the rightful owner:
+            </div>
+            <div class="resolution-options">
+              {% for claim in item_data.pending_claims %}
+              <form method="post" action="/admin/conflict/resolve" style="display:inline;">
+                <input type="hidden" name="approved_claim_id" value="{{ claim.id }}">
+                <input type="hidden" name="item_id" value="{{ item_data.item.id }}">
+                <button type="submit" class="btn-resolve-conflict">
+                  <i class="fas fa-check-double"></i> Approve {{ claim.claimer.email.split('@')[0] }}
+                </button>
+              </form>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% else %}
+          <div class="empty-claims">
+            <i class="fas fa-inbox"></i> No claims yet
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+      <h4>No items to review</h4>
+      <p>All items have been processed or there are no reported items yet.</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

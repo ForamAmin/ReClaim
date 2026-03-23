@@ -9,6 +9,10 @@ from uuid import uuid4
 from backend.database import get_db
 from backend.services import auth_service, item_service
 
+#For Image blur 
+from PIL import Image, ImageFilter
+import io
+
 router = APIRouter()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,13 +59,23 @@ async def submit_report_item(
         return RedirectResponse(url="/login", status_code=303)
 
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-    extension = Path(image.filename or "").suffix or ".jpg"
-    saved_name = f"{uuid4().hex}{extension}"
-    saved_path = UPLOADS_DIR / saved_name
-
+    (UPLOADS_DIR / "originals").mkdir(parents=True, exist_ok=True)
+    (UPLOADS_DIR / "blurs").mkdir(parents=True, exist_ok=True)
+    
     file_bytes = await image.read()
-    with open(saved_path, "wb") as output_file:
-        output_file.write(file_bytes)
+
+    # Save original
+    original_name = f"{uuid4().hex}-original.jpg"
+    original_path = UPLOADS_DIR / "originals" / original_name
+    with open(original_path, "wb") as f:
+        f.write(file_bytes)
+
+    # Save blurred version
+    blurred_name = f"{uuid4().hex}-blurred.jpg"
+    blurred_path = UPLOADS_DIR / "blurs" / blurred_name
+    img = Image.open(io.BytesIO(file_bytes))
+    blurred_img = img.filter(ImageFilter.GaussianBlur(radius=10))
+    blurred_img.save(blurred_path)
 
     parsed_date = None
     if date_found:
@@ -74,7 +88,8 @@ async def submit_report_item(
         description=description.strip(),
         category=category.strip(),
         location_found=location_found.strip(),
-        image_url=f"/static/uploads/{saved_name}",
+        image_url=f"/static/uploads/blurs/{blurred_name}",
+        original_image_url=f"/static/uploads/originals/{original_name}",
         date_found=parsed_date,
     )
 
