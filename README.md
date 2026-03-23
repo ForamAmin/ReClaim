@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Faeatures
     1) **Authentication** :  i.e student can access via college email id only.
     2) **Form* : For claimer and founder to fill the details of lost and found items.
     3) **RBAC** : Different roles i.e claimer , founder and admin with different access levels and view of dashboard. i.e claimer can only see that someone has posted an item found but cannot see who posted it and what in detail. and founder can see the details of claimer and the system will ask questions to verify the identity and truthfulness of claimer before handing over the item.
